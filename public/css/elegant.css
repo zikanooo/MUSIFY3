@@ -1,0 +1,150 @@
+/* ==========================================================================
+   Musify — Elegant Layer (dimuat TERAKHIR)
+   Tema: monokrom graphite + aksen mutiara yang mengikuti cover lagu.
+   Prinsip performa: tanpa blur besar, tanpa animasi tak berujung di latar,
+   hanya transform/opacity untuk gerak, bayangan tipis, kontainmen per kartu.
+   ========================================================================== */
+:root {
+  --nm-a1: #d4d8e1; --nm-a2: #9ea5b6;                 /* aksen default (ditimpa JS dari cover) */
+  --nm-glass-top: rgba(24,26,34,.96); --nm-glass-bot: rgba(13,15,20,.98);
+  --nm-line: rgba(255,255,255,.075);
+  --ink: #07080b; --s1: #0e1015; --s2: #13151b; --s3: #1b1e26;
+  --hair: rgba(255,255,255,.07); --hair-2: rgba(255,255,255,.12);
+  --t1: #f5f6f8; --t2: rgba(245,246,248,.64); --t3: rgba(245,246,248,.42);
+  --ease: cubic-bezier(.22,1,.36,1);
+  transition: none;                                      /* warna aksen ganti instan: tanpa repaint 1 detik */
+}
+
+html, body { background: var(--ink); color: var(--t1); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility;
+  letter-spacing: -.003em;
+}
+::selection { background: rgba(255,255,255,.22); }
+:focus-visible { outline: 1.5px solid rgba(255,255,255,.55); outline-offset: 2px; border-radius: 6px; }
+button:focus:not(:focus-visible), [onclick]:focus:not(:focus-visible) { outline: none; }
+
+/* ---------- Latar: satu lapis statis, bukan blob blur yang bergerak ---------- */
+.app-bg {
+  background:
+    radial-gradient(90% 55% at 50% -8%, color-mix(in srgb, var(--nm-a1) 10%, transparent), transparent 70%),
+    radial-gradient(70% 45% at 100% 105%, color-mix(in srgb, var(--nm-a2) 6%, transparent), transparent 70%),
+    var(--ink) !important;
+  contain: strict;
+}
+.app-bg::before, .app-bg::after { display: none !important; }
+
+/* ---------- Header beranda + banner ---------- */
+.nm-banner-host { box-shadow: none !important; border-color: var(--hair) !important; background-color: var(--s1); }
+.nm-banner::after { background: linear-gradient(180deg, rgba(7,8,11,.30) 0%, rgba(7,8,11,.72) 62%, var(--ink) 100%); }
+.nm-banner-video { transform: none; }
+html.perf-lite .nm-banner-video { display: none; }       /* perangkat hemat: cukup poster statis */
+
+/* ---------- Sapaan ---------- */
+.nm-greet { padding: 10px 2px 4px; }
+.nm-greet-sub { font-size: 11px; font-weight: 600; letter-spacing: .22em; color: var(--t3); }
+.nm-greet-title {
+  margin-top: 8px; font-size: 27px; line-height: 1.16; font-weight: 700; letter-spacing: -.025em;
+  background: none; -webkit-text-fill-color: #fff; color: #fff; animation: none;
+}
+.nm-greet-wave { display: none; }
+.nm-greet::after { content: ""; display: block; width: 40px; height: 1px; margin-top: 16px; background: linear-gradient(90deg, var(--nm-a1), transparent); }
+
+#view-home h2.text-lg, #view-home h2 { font-size: 17px; font-weight: 700; letter-spacing: -.015em; }
+#view-home h2.text-lg::after { height: 1px; width: 28px; opacity: .8; }
+
+/* ---------- Kartu & permukaan ---------- */
+.glass-card, .glass, .home-grid-card, .home-cat-card {
+  background: var(--s2); border: 1px solid var(--hair) !important; box-shadow: none !important;
+  transition: background-color .22s var(--ease), border-color .22s var(--ease), transform .3s var(--ease) !important;
+}
+.glass-card:hover, .home-grid-card:hover, .home-cat-card:hover { background: var(--s3); border-color: var(--hair-2) !important; box-shadow: none !important; }
+.home-grid-card, .home-cat-card { border-radius: 16px; contain: layout paint style; }
+.home-grid-card img, #home-scroll img, #home-artists img { transition: transform .45s var(--ease); }
+@media (hover: hover) {
+  .home-grid-card:hover { transform: translate3d(0,-2px,0); }
+  .home-grid-card:hover img { transform: scale(1.05); }
+}
+.glass-dock, .glass-strong, .glass-pane { box-shadow: none; }
+.btn-chrome { box-shadow: none; border: 1px solid var(--hair); transition: transform .3s var(--ease), background-color .2s; }
+.btn-chrome:hover { transform: none; background: var(--s3); }
+.artist-photo { box-shadow: none; border: 2px solid var(--hair-2); }
+img { image-rendering: auto; }
+
+/* chip kategori */
+.home-chip-btn { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; letter-spacing: .005em; box-shadow: none !important; }
+.home-chip-btn.scale-105 { transform: none; }
+
+/* ---------- Navbar kapsul ---------- */
+.nm-dock {
+  background: linear-gradient(180deg, var(--nm-glass-top), var(--nm-glass-bot));
+  -webkit-backdrop-filter: none; backdrop-filter: none; border: 1px solid var(--hair-2);
+  box-shadow: 0 14px 30px -14px rgba(0,0,0,.85);
+}
+.nm-dock::before { display: none; }
+.nm-dock-pill {
+  background: rgba(255,255,255,.10);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.07);
+}
+.nm-dock-pill::after { background: var(--nm-a1); box-shadow: none; width: 14px; height: 2px; }
+.nm-nav-item { color: var(--t3); }
+.nm-nav-item.is-active { color: #fff; }
+.nm-nav-item.is-active .nm-nav-ico { transform: translate3d(0,-2px,0) scale(1.08); }
+.nm-nav-label { letter-spacing: .02em; }
+#nav-liked.is-active svg { filter: none; }
+
+/* ---------- Mini player ---------- */
+.nm-mp {
+  border-radius: 22px; animation: none;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--nm-a1) 8%, #14161d), #0d0f14 78%) !important;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  box-shadow: 0 14px 28px -14px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.075) inset !important;
+}
+.nm-mp-art img { box-shadow: 0 0 0 1px rgba(255,255,255,.1); }
+.nm-mini-cover-glow { display: none; }
+#mini-circle-progress { filter: none; stroke: var(--nm-a1) !important; }
+.nm-mp-play { box-shadow: none; background: #fff; }
+body.is-playing .nm-mp-play { animation: none; }
+body.is-playing #mini-cover { animation: nmDisc 16s linear infinite; }   /* hanya rotasi (compositor) */
+.nm-mp-title { font-weight: 650; letter-spacing: -.005em; }
+.nm-mp-artist { color: var(--t2); }
+.nm-eq i { background: var(--nm-a1); }
+
+/* ---------- Pemutar penuh & lirik: tanpa blend/blur yang bergerak ---------- */
+.player-bg-glow { mix-blend-mode: normal !important; animation: none !important; filter: none !important; will-change: auto; opacity: .55; }
+.player-bg-blur-img { will-change: auto; }
+body.is-playing #full-cover, body.is-playing #full-play { animation: none !important; }
+body.is-playing #full-progress::after { animation: none !important; }
+#lyrics-overlay::before, #lyrics-overlay::after { animation: none !important; will-change: auto; opacity: .32; }
+@media (max-width: 767px) {
+  #lyrics-content .lyric-line, #full-inline-lyrics-content .inline-lyric-line { filter: none !important; transition: opacity .4s var(--ease), transform .5s var(--ease) !important; }
+}
+
+/* masuk bertahap: hanya opacity + transform (tanpa filter blur) */
+@keyframes nmRise { from { opacity: 0; transform: translate3d(0,14px,0); } to { opacity: 1; transform: none; } }
+@keyframes lyricIn { from { opacity: 0; transform: translate3d(0,22px,0); } }
+.nm-st { animation: nmRise 460ms var(--ease) backwards; animation-delay: calc(var(--i, 0) * 38ms); }
+#lyrics-content .lyric-line { animation: lyricIn 520ms var(--ease) backwards; animation-delay: calc(min(var(--i, 0), 10) * 36ms); }
+
+/* ---------- Pencarian ---------- */
+.nm-search-head { background: rgba(7,8,11,.97); -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom: 1px solid var(--hair); }
+.nm-search-box { border-radius: 14px; background: var(--s2); border: 1px solid var(--hair); }
+.nm-search-box:focus-within { background: var(--s3); border-color: rgba(255,255,255,.28); box-shadow: none; }
+.nm-suggest { background: var(--s2); border: 1px solid var(--hair-2); box-shadow: 0 16px 32px -12px rgba(0,0,0,.8); }
+.nm-filter .filter-tab { background: var(--s2); border: 1px solid var(--hair); color: var(--t2); }
+.nm-filter .filter-tab.active { background: #fff; color: #000; border-color: #fff; }
+
+/* ---------- Overlay / popup: tanpa blur layar penuh ---------- */
+.nm-overlay-in { animation-duration: 220ms; }
+[class*="backdrop-blur"] { will-change: auto; }
+
+/* ---------- Scroll lebih ringan ---------- */
+#main-area { overscroll-behavior-y: contain; }
+.search-song-item { contain: layout paint style; }
+#home-scroll, #home-artists { contain: layout style; }
+
+/* ---------- Hormati preferensi gerak ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

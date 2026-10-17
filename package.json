@@ -1,0 +1,18 @@
+{
+  "name": "musify",
+  "private": true,
+  "version": "5.2.0",
+  "description": "Musify - Web Music Player by zychocuwek",
+  "scripts": {
+    "lint": "node scripts/lint.js",
+    "dev": "node server.js",
+    "build": "echo 'No build required'",
+    "start": "node server.js",
+    "css": "python3 scripts/twgen.py public public/css/utilities.css"
+  },
+  "dependencies": {
+    "axios": "^1.18.1",
+    "express": "^5.2.1"
+  },
+  "author": "zychocuwek"
+}

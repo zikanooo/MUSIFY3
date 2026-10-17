@@ -1,0 +1,85 @@
+/* Musify — layar pembuka (#nm-loader) + bar loading global (#nm-topbar). Logika: js/core/loader.js
+   Konsep: logo ZM muncul di dalam cincin progres tipis, wordmark huruf demi huruf,
+   lalu "tirai" dua panel terbuka ke atas/bawah. Semua gerak = transform/opacity (ringan). */
+:root { --ios: cubic-bezier(.32, .72, 0, 1); --out: cubic-bezier(.16, 1, .3, 1); }
+
+#nm-loader { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; pointer-events: auto; contain: strict; }
+
+/* tirai: dua panel yang membuka ke atas & bawah saat selesai */
+#nm-loader::before, #nm-loader::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 50.5%; background: #050507; z-index: 0;
+  transition: transform .8s var(--ios);
+}
+#nm-loader::before { top: 0; background: radial-gradient(120% 140% at 50% 100%, #12141b 0%, #050507 62%); }
+#nm-loader::after  { bottom: 0; background: radial-gradient(120% 140% at 50% 0%, #12141b 0%, #050507 62%); }
+#nm-loader.is-leaving::before { transform: translate3d(0, -101%, 0); }
+#nm-loader.is-leaving::after  { transform: translate3d(0, 101%, 0); }
+#nm-loader.is-leaving { pointer-events: none; }
+
+.nmL-center { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; transform: translateY(-3vh); transition: opacity .35s ease, transform .55s var(--ios); }
+#nm-loader.is-leaving .nmL-center { opacity: 0; transform: translateY(-3vh) scale(1.08); }
+
+/* cahaya lembut di belakang logo (statis, hanya opacity yang bernapas) */
+.nmL-halo {
+  position: absolute; left: 50%; top: 0; width: 260px; height: 260px; margin: -64px 0 0 -130px; border-radius: 50%; z-index: -1;
+  background: radial-gradient(closest-side, rgba(255,255,255,.14), rgba(255,255,255,.04) 55%, transparent 72%);
+  opacity: 0; animation: nmLHaloIn 1.2s ease .15s forwards, nmLBreath 3.2s ease-in-out 1.4s infinite;
+}
+@keyframes nmLHaloIn { to { opacity: 1; } }
+@keyframes nmLBreath { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+
+/* logo + cincin progres */
+.nmL-mark { position: relative; width: 132px; height: 132px; }
+.nmL-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+.nmL-ring circle { fill: none; stroke-width: 1.5; }
+.nmL-ring .bg { stroke: rgba(255,255,255,.09); }
+.nmL-ring .fg { stroke: #fff; stroke-linecap: round; stroke-dasharray: 376.99; stroke-dashoffset: 376.99; transition: stroke-dashoffset .35s linear; }
+.nmL-ring .tick { stroke: rgba(255,255,255,.35); stroke-width: 1; stroke-dasharray: 1 11.3; opacity: 0; animation: nmLFade .8s ease .5s forwards; }
+.nmL-logo {
+  position: absolute; inset: 14px; border-radius: 50%; overflow: hidden; background: #000;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 14px 34px -10px rgba(0,0,0,.9);
+  opacity: 0; transform: scale(.78); animation: nmLLogo .9s var(--out) .05s forwards;
+}
+.nmL-logo img { width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(1.18); }
+.nmL-logo::after { /* kilau sekali lewat */
+  content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 38%, rgba(255,255,255,.34) 50%, transparent 62%);
+  transform: translate3d(-120%, 0, 0); animation: nmLShine 1.3s var(--ios) .75s forwards;
+}
+@keyframes nmLLogo { to { opacity: 1; transform: scale(1); } }
+@keyframes nmLShine { to { transform: translate3d(120%, 0, 0); } }
+@keyframes nmLFade { to { opacity: 1; } }
+
+/* wordmark: huruf muncul berurutan */
+.nmL-title {
+  display: flex; margin: 30px 0 0; font-size: 1.05rem; font-weight: 600; letter-spacing: .5em; text-indent: .5em; color: #fff; text-transform: uppercase;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+}
+.nmL-title span { display: inline-block; opacity: 0; transform: translate3d(0, 10px, 0); animation: nmLUp .7s var(--out) forwards; animation-delay: calc(.45s + var(--i) * 70ms); }
+.nmL-sub { margin-top: 10px; font-size: .68rem; letter-spacing: .32em; text-indent: .32em; text-transform: uppercase; color: rgba(255,255,255,.38); opacity: 0; animation: nmLUp .8s var(--out) 1s forwards; }
+@keyframes nmLUp { to { opacity: 1; transform: none; } }
+
+/* persentase di bawah layar */
+.nmL-pct {
+  position: absolute; z-index: 1; left: 0; right: 0; bottom: calc(34px + env(safe-area-inset-bottom, 0px)); text-align: center;
+  font-size: .72rem; letter-spacing: .3em; text-indent: .3em; color: rgba(255,255,255,.45); font-variant-numeric: tabular-nums;
+  opacity: 0; animation: nmLFade .8s ease .8s forwards; transition: opacity .3s ease;
+}
+#nm-loader.is-leaving .nmL-pct { opacity: 0 !important; }
+
+/* aplikasi "terbuka" di balik tirai */
+body.nm-enter #main-area { animation: nmLOpen .8s var(--out) both; }
+@keyframes nmLOpen { from { opacity: 0; transform: scale(.985) translate3d(0, 10px, 0); } to { opacity: 1; transform: none; } }
+
+/* bar loading global */
+#nm-topbar { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; height: 2px; z-index: 9998; pointer-events: none; opacity: 0; transition: opacity .3s ease; }
+#nm-topbar.on { opacity: 1; }
+#nm-topbar i { display: block; height: 100%; transform-origin: left center; transform: scaleX(0); transition: transform .3s var(--ios);
+  background: linear-gradient(90deg, rgba(255,255,255,.2), #fff); border-radius: 0 2px 2px 0; }
+
+@media (max-width: 380px) { .nmL-mark { width: 116px; height: 116px; } .nmL-title { letter-spacing: .4em; text-indent: .4em; } }
+@media (prefers-reduced-motion: reduce) {
+  .nmL-logo, .nmL-title span, .nmL-sub, .nmL-pct, .nmL-halo, .nmL-ring .tick { animation: none; opacity: 1; transform: none; }
+  .nmL-logo::after { display: none; }
+  #nm-loader::before, #nm-loader::after, .nmL-center { transition-duration: .01s; }
+  body.nm-enter #main-area { animation: none; }
+}

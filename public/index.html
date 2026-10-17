@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script src="/js/core/config.js?v=52"></script>
+    <script src="/js/core/sw-register.js?v=52" defer></script>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#050507">
+    <title>Musify</title>
+    <meta name="author" content="zychocuwek">
+    <link rel="icon" type="image/png" href="/assets/logo.png">
+    <link rel="apple-touch-icon" href="/assets/logo.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="preload" as="image" href="/assets/logo.png">
+    <link rel="preload" as="image" href="/assets/banner-poster.jpg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Musify">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:site_name" content="Musify">
+    <meta property="og:title" content="Musify">
+    <meta property="og:description" content="Musify - Web Music Player">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/">
+    <meta property="og:image" content="https://www.gobox.my.id/file/R0ym4wqfznmp.png">
+    <meta property="og:image:secure_url" content="https://www.gobox.my.id/file/R0ym4wqfznmp.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="600">
+    <meta property="og:image:height" content="600">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Musify">
+    <meta name="twitter:description" content="Musify - Web Music Player">
+    <meta name="twitter:image" content="https://www.gobox.my.id/file/R0ym4wqfznmp.png">
+    <meta name="twitter:image:src" content="https://www.gobox.my.id/file/R0ym4wqfznmp.png">
+
+    <script>
+        window.lucide = window.lucide || { createIcons: function() {} };
+    </script>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
+    <script defer src="https://unpkg.com/lucide@latest" onload="if(window.lucide && typeof window.lucide.createIcons === 'function') try{ window.lucide.createIcons(); } catch(e){}"></script>
+    <link rel="stylesheet" href="/css/loader.css?v=52">
+    <link rel="stylesheet" href="/css/base.css?v=52">
+    <link rel="stylesheet" href="/css/motion.css?v=52">
+    <link rel="stylesheet" href="/css/nm-ui.css?v=52">
+    <link rel="stylesheet" href="/css/banner.css?v=52">
+    <link rel="stylesheet" href="/css/notifications.css?v=52">
+    <link rel="stylesheet" href="/css/utilities.css?v=52">
+    <link rel="stylesheet" href="/css/elegant.css?v=52">
+</head>
+<body class="h-[100dvh] w-full bg-transparent text-white font-sans overflow-hidden flex flex-col">
+    <div class="app-bg"></div>
+
+    <div id="nm-loader" role="status" aria-label="Memuat Musify">
+        <div class="nmL-center">
+            <div class="nmL-mark">
+                <i class="nmL-halo" aria-hidden="true"></i>
+                <svg class="nmL-ring" viewBox="0 0 132 132" aria-hidden="true">
+                    <circle class="bg" cx="66" cy="66" r="60"/>
+                    <circle class="tick" cx="66" cy="66" r="65"/>
+                    <circle class="fg" id="nmL-fill" cx="66" cy="66" r="60"/>
+                </svg>
+                <div class="nmL-logo"><img src="/assets/logo.png" alt="" decoding="async" fetchpriority="high" onerror="this.style.display='none'"></div>
+            </div>
+            <h1 class="nmL-title" aria-label="Musify"><span style="--i:0">M</span><span style="--i:1">u</span><span style="--i:2">s</span><span style="--i:3">i</span><span style="--i:4">f</span><span style="--i:5">y</span></h1>
+            <p class="nmL-sub">Musik tanpa batas</p>
+        </div>
+        <div class="nmL-pct" id="nmL-pct" aria-hidden="true">0%</div>
+    </div>
+    <div id="nm-topbar" aria-hidden="true"><i></i></div>
+
+    <div class="flex-1 overflow-y-auto overflow-x-hidden pb-[140px] hide-scrollbar" id="main-area">
+        <div id="view-home"></div>
+        <div id="view-search" style="display:none;"></div>
+        <div id="view-library" style="display:none;"></div>
+        <div id="view-offline" style="display:none;"></div>
+        <div id="view-liked" style="display:none;"></div>
+        <div id="view-dev" style="display:none;"></div>
+    </div>
+
+    <!-- PWA Offline Banner -->
+    <div id="pwa-offline-banner" class="hidden fixed top-3 left-1/2 -translate-x-1/2 z-[500] bg-amber-500/90 text-black font-bold text-xs px-4 py-1.5 rounded-full shadow-2xl backdrop-blur-md flex items-center gap-2 border border-amber-400/50">
+        <i data-lucide="wifi-off" class="w-4 h-4"></i>
+        <span id="pwa-offline-text">Mode Offline (PWA) - Memutar data tersimpan</span>
+    </div>
+
+    <div id="nav-container"></div>
+    <div id="mini-container"></div>
+    <div id="full-container"></div>
+    <div id="lyrics-container"></div>
+    <div id="artist-container"></div>
+    <div id="yt-player" style="position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;"></div>
+    <audio id="audio-player" preload="auto" playsinline style="display:none;"></audio>
+
+    <script src="/js/core/player.js?v=52"></script>
+    <script src="/js/pages/home.js?v=52"></script>
+    <script src="/js/pages/search.js?v=52"></script>
+    <script src="/js/pages/liked.js?v=52"></script>
+    <script src="/js/pages/library.js?v=52"></script>
+    <script src="/js/pages/profile.js?v=52"></script>
+    <script src="/js/ui/miniplayer.js?v=52"></script>
+    <script src="/js/ui/fullplayer.js?v=52"></script>
+    <script src="/js/pages/artist.js?v=52"></script>
+    <script src="/js/pages/album.js?v=52"></script>
+    <script src="/js/core/loader.js?v=52"></script>
+    <script src="/js/core/notifications.js?v=52"></script>
+    <script src="/js/core/app.js?v=52"></script>
+    <script src="/js/core/motion.js?v=52"></script>
+    <script src="/js/core/nm-ui.js?v=52"></script>
+    <script>(function () {
+  document.addEventListener('visibilitychange', function () {
+    document.documentElement.classList.toggle('tab-hidden', document.hidden);
+  });
+})();</script>
+</body>
+
+</html>
